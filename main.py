@@ -1,20 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import charlogic  # Assuming charlogic contains the logic for getting and updating character data
-from fastapi.middleware.cors import CORSMiddleware
+import charlogic
 
 app = FastAPI()
 
-# Enable CORS to allow your frontend app to access the API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins, change this to specific domains for security
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
-)
-
-# Define request models
 class CharRequest(BaseModel):
     charname: str
 
@@ -22,7 +11,6 @@ class CharUpdateRequest(BaseModel):
     charname: str
     new_data: dict
 
-# Endpoint to get character data
 @app.post("/character/get")
 async def get_character(data: CharRequest):
     char_data = charlogic.get_character(data.charname)
@@ -30,10 +18,17 @@ async def get_character(data: CharRequest):
         return {"data": char_data}
     raise HTTPException(status_code=404, detail="Character not found")
 
-# Endpoint to update character data
 @app.post("/character/update")
 async def update_character(data: CharUpdateRequest):
     result = charlogic.update_character(data.charname, data.new_data)
     if result:
         return {"status": "success", "message": "Character updated"}
     raise HTTPException(status_code=404, detail="Character not found or update failed")
+
+@app.post("/character/rename_search")
+async def rename_character_for_search(data: CharRequest):
+    # เปลี่ยนชื่อเฉพาะในการค้นหาข้อมูล
+    result = charlogic.change_charname_for_search(data.charname, data.new_name)
+    if result:
+        return {"status": "success", "message": "Character name updated for search"}
+    raise HTTPException(status_code=404, detail="Character not found for renaming in search")
