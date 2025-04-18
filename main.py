@@ -25,3 +25,17 @@ async def update_character(data: CharUpdateRequest):
     if result:
         return {"status": "success", "message": "Character updated"}
     raise HTTPException(status_code=404, detail="Character not found or update failed")
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# เพิ่ม middleware สำหรับ CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # ให้ทุกที่เข้าถึงได้ ถ้าต้องการจะระบุแค่บางโดเมน ให้ใส่เป็นลิสต์ เช่น ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],  # อนุญาตให้ทุก HTTP method
+    allow_headers=["*"],  # อนุญาตให้ทุก header
+)
+
+
